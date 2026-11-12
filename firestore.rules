@@ -1,0 +1,98 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'rakeshd78@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isValidId(userId) && isOwner(userId)
+        && incoming().id == userId
+        && incoming().email is string && incoming().email.size() <= 256
+        && (!('role' in incoming()) || incoming().role == 'user');
+      allow update: if isValidId(userId) && isOwner(userId)
+        && incoming().id == existing().id
+        && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL'])
+        || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Orders Collection
+    match /orders/{orderId} {
+      allow get: if isValidId(orderId) && (
+        (isSignedIn() && resource.data.userId == request.auth.uid) ||
+        resource.data.customerEmail == request.auth.token.email ||
+        isAdmin()
+      );
+      allow list: if (isSignedIn() && resource.data.userId == request.auth.uid) || isAdmin();
+      allow create: if isValidId(orderId)
+        && incoming().id == orderId
+        && incoming().customerName is string && incoming().customerName.size() <= 128
+        && incoming().customerEmail is string && incoming().customerEmail.size() <= 256
+        && incoming().total is number && incoming().total >= 0;
+      allow update: if isValidId(orderId) && isAdmin();
+      allow delete: if isValidId(orderId) && isAdmin();
+    }
+
+    // Consultations Collection
+    match /consultations/{consultationId} {
+      allow get, list: if isAdmin();
+      allow create: if isValidId(consultationId)
+        && incoming().id == consultationId
+        && incoming().name is string && incoming().name.size() <= 128
+        && incoming().email is string && incoming().email.size() <= 256;
+      allow update, delete: if isValidId(consultationId) && isAdmin();
+    }
+
+    // Project Enquiries Collection
+    match /projectEnquiries/{enquiryId} {
+      allow get, list: if isAdmin();
+      allow create: if isValidId(enquiryId)
+        && incoming().id == enquiryId
+        && incoming().name is string && incoming().name.size() <= 128
+        && incoming().email is string && incoming().email.size() <= 256;
+      allow update, delete: if isValidId(enquiryId) && isAdmin();
+    }
+
+    // Newsletter Collection
+    match /newsletter/{subscriberId} {
+      allow get, list: if isAdmin();
+      allow create: if isValidId(subscriberId)
+        && incoming().id == subscriberId
+        && incoming().email is string && incoming().email.size() <= 256;
+      allow update, delete: if isValidId(subscriberId) && isAdmin();
+    }
+  }
+}

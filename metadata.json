@@ -1,0 +1,6 @@
+{
+  "name": "Nestora — Luxury Interior Design & Studio",
+  "description": "Nestora is a luxury interior design studio and bespoke furniture house creating timeless spaces, refined aesthetics, and elevated architectural environments.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

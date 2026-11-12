@@ -1,0 +1,112 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Registered user account profile",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "displayName": { "type": "string", "maxLength": 128 },
+        "photoURL": { "type": "string", "maxLength": 512 },
+        "role": { "type": "string", "enum": ["user", "admin"] },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "email", "createdAt"]
+    },
+    "Order": {
+      "title": "Shop Order",
+      "description": "Customer purchase order for luxury furniture and decor",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "customerName": { "type": "string", "maxLength": 128 },
+        "customerEmail": { "type": "string", "maxLength": 256 },
+        "phone": { "type": "string", "maxLength": 32 },
+        "address": { "type": "string", "maxLength": 256 },
+        "city": { "type": "string", "maxLength": 128 },
+        "state": { "type": "string", "maxLength": 128 },
+        "postalCode": { "type": "string", "maxLength": 32 },
+        "country": { "type": "string", "maxLength": 64 },
+        "subtotal": { "type": "number" },
+        "shipping": { "type": "number" },
+        "discount": { "type": "number" },
+        "total": { "type": "number" },
+        "paymentStatus": { "type": "string", "enum": ["paid", "pending", "failed"] },
+        "paymentMethod": { "type": "string", "maxLength": 64 },
+        "orderStatus": { "type": "string", "enum": ["confirmed", "processing", "shipped", "delivered"] },
+        "itemsSummary": { "type": "string", "maxLength": 2048 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "customerName", "customerEmail", "total", "paymentStatus", "createdAt"]
+    },
+    "Consultation": {
+      "title": "Design Consultation",
+      "description": "Appointment and inquiry request for interior design consultations",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "name": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "phone": { "type": "string", "maxLength": 32 },
+        "projectType": { "type": "string", "maxLength": 128 },
+        "budget": { "type": "string", "maxLength": 64 },
+        "timeline": { "type": "string", "maxLength": 64 },
+        "message": { "type": "string", "maxLength": 2048 },
+        "status": { "type": "string", "enum": ["new", "reviewed", "scheduled"] },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "name", "email", "createdAt"]
+    },
+    "ProjectEnquiry": {
+      "title": "Project Enquiry",
+      "description": "Direct inquiry on a featured architectural or residential project",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "projectId": { "type": "string", "maxLength": 64 },
+        "projectName": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "phone": { "type": "string", "maxLength": 32 },
+        "notes": { "type": "string", "maxLength": 2048 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "projectId", "name", "email", "createdAt"]
+    },
+    "NewsletterSubscription": {
+      "title": "Newsletter Subscription",
+      "description": "Email newsletter subscriber record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "email": { "type": "string", "maxLength": 256 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "email", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Private user account profile records"
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Customer orders collection"
+    },
+    "/consultations/{consultationId}": {
+      "schema": { "$ref": "#/entities/Consultation" },
+      "description": "Design consultation inquiries"
+    },
+    "/projectEnquiries/{enquiryId}": {
+      "schema": { "$ref": "#/entities/ProjectEnquiry" },
+      "description": "Direct project inquiries"
+    },
+    "/newsletter/{subscriberId}": {
+      "schema": { "$ref": "#/entities/NewsletterSubscription" },
+      "description": "Newsletter email subscriptions"
+    }
+  }
+}
